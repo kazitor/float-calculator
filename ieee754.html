@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+  <title>IEEE 754 calc</title>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="ieee754.js"></script>
+  <style>
+    .bits span {
+      display: inline-block;
+      line-height: 1.5em;
+      height: 1.5em;
+      width: 1.5em;
+      margin-right: 0.1em;
+      border: 1px solid;
+      text-align: center;
+    }
+
+    #sign .bits span {
+      border-color: #ff9;
+    }
+    #exponent .bits span {
+      border-color: #99f;
+    }
+    #mantissa .bits span {
+      border-color: #9f9;
+    }
+
+    .group {
+      display: inline-block;
+    }
+    .group .label {
+      display: block;
+      margin-bottom: 0.5em;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="group" id="sign">
+    <span class="label">Sign</span>
+    <div class="bits">
+      <span>0</span>
+    </div>
+  </div>
+  <div class="group" id="exponent">
+    <span class="label">Exponent</span>
+    <div class="bits">
+      <span>0</span>
+      <span>0</span>
+      <span>0</span>
+      <span>0</span>
+      <span>0</span>
+    </div>
+  </div>
+  <div class="group" id="mantissa">
+    <span class="label">Mantissa</span>
+    <div class="bits">
+      <span>0</span>
+      <span>0</span>
+      <span>0</span>
+      <span>0</span>
+      <span>0</span>
+      <span>0</span>
+      <span>0</span>
+      <span>0</span>
+      <span>0</span>
+      <span>0</span>
+    </div>
+  </div>
+
+  <select id="precision">
+    <option value="5,10">Half (16)</option>
+    <option value="8,23">Single (32)</option>
+    <option value="11,52">Double (64)</option>
+    <option value="15,112">Quadruple (128)</option>
+    <option value="19,236">Octuple (256)</option>
+  </select>
+
+  precise value
+  displayed value
+</body>
+</html>
