@@ -46,10 +46,10 @@
     <span class="label">Exponent</span>
     <div class="bits">
       <span>0</span>
-      <span>0</span>
-      <span>0</span>
-      <span>0</span>
-      <span>0</span>
+      <span>1</span>
+      <span>1</span>
+      <span>1</span>
+      <span>1</span>
     </div>
   </div>
   <div class="group" id="mantissa">
@@ -68,15 +68,23 @@
     </div>
   </div>
 
-  <select id="precision">
-    <option value="5,10">Half (16)</option>
-    <option value="8,23">Single (32)</option>
-    <option value="11,52">Double (64)</option>
-    <option value="15,112">Quadruple (128)</option>
-    <option value="19,236">Octuple (256)</option>
+  <select id="precision" disabled>
+    <option value="16">Half (16)</option>
+    <option value="32">Single (32)</option>
+    <option value="64">Double (64)</option>
+    <option value="128">Quadruple (128)</option>
+    <option value="256">Octuple (256)</option>
   </select>
 
-  precise value
-  displayed value
+  <table>
+    <tr>
+      <th>precise</th>
+      <td id="val_precise">1</td>
+    </tr>
+    <tr>
+      <th>output</th>
+      <td id="val_output">1</td>
+    </tr>
+  </table>
 </body>
 </html>

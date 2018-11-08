@@ -1,59 +1,65 @@
-val = {
-  bits: {
-    all: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    sig: 0,
-    exp: [0,0,0,0,0],
-    man: [0,0,0,0,0,0,0,0,0,0]
-  },
-  vals: {
-    precise: null,
-    out: null,
-    exp: null,
-    man: null
-  },
-  size: [5,10],
-  
-  setbits: function setbits(bits) {
-    this.bits.all = bits;
-    this.bits.sig = bits[0];
-    this.bits.exp = bits.slice(1, this.size[0]+1);
-    this.bits.man = bits.slice(this.size[0] + 1, 2 + this.size[0] + this.size[1]);
-  },
+/*
+exponent bits:
+5,8,11,15,19
+precisions:
+10,23,52,112,236
 
-  update: function update() {
-    //
-  },
+bias = 2**(exp - 1) - 1
+*/
 
-  setsize: function setsize(exp, man) {
-    var old = this;
-  }
+var val = {
+  bits: [0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0],
+  sig: 0,
+  exp: [1,1,1,1,0],
+  man: [0,0,0,0,0,0,0,0,0,0]
 };
-    
+var width = 16;
+var precision = 10;
 
 $(function() {
   $('.bits span').click(function() {
     $(this).text(1 - $(this).text());
 
-    update();
+    updatevalues();
   });
 
   $('#precision').change(function() {
-    var vals = $(this).val().split(',');
-    setsize(vals[0],vals[1]);
+    setsize($(this).val());
   });
 });
 
-function update() {
+function updatevalues() {
   var bits = [];
   $('.bits span').each(function() {
     bits.push( parseInt($(this).text()) );
   });
 
-  val.setbits(bits);
+  bits.reverse();
 
-  console.log(val);
+  val.bits = bits;
+  val.sig = bits[width-1];
+  val.exp = bits_to_int(bits.slice(precision,width));
+  val.man = bits_to_int(bits.slice(0,precision).concat([1]));
+
+  $('#val_precise').text(precisevalue(val));
 }
 
-function setsize(exponent, mantissa) {
+function bits_to_int(bits) {
+  var val = 0;
+  for(var i = 0; i < bits.length; i++)
+    if(bits[i])
+      val += Math.pow(2,i);
+
+  return val;
+}
+
+function precisevalue(val) {
+  // (-1)**sign  *  2**(exponent - bias)  *  mantissa
+  if(val.exp == Math.pow(2,width-precision-1)-1)
+    return (val.man == 0) ? 'infinity' : 'NaN';
+  return 1;
+}
+
+function setsize(size) {
   //
 }
