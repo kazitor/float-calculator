@@ -101,7 +101,6 @@ function split_point(val) {
 
       trail = val.man.slice(0, width.man).concat(trail);
     }
-    trail.reverse();
   }
 
   return [lead, trail];
@@ -109,16 +108,71 @@ function split_point(val) {
 
 function trailing_decimal(binary) {
   // return a string of decimal digits
-  // binary: array of 1 or 0, with binary[i] = 2**-(i+1)
+  // binary: array of 1 or 0, with binary[len-1] = 2**-1
 
-  return binary.join('');
+  var decimal = '';
+  // binary multiplication
+  while(binary.length > 0) {
+    var length = binary.length;
+    // multiply by 10 = 0b1010
+    binary = binary_add([0].concat(binary), [0,0,0].concat(binary));
+    decimal += bits_to_int(binary.slice(length)).toString();
+    binary = binary.slice(binary.indexOf(1),length);
+  }
+
+  return decimal;
 }
 
 function leading_decimal(binary) {
   // return a string of decimal digits
   // binary: array of 1 or 0, with binary[i] = 2**i
 
-  // dec[0] = 
+  // double dabble
+  var bcd = Array(4 * Math.ceil(binary.length/3)).fill(0);
+  for(var i = binary.length-1; i >= 0; i--) {
+    for(var digit = 0; digit < bcd.length; digit+=4) {
+      // if digit > 4
+      if(bcd[digit+3] || bcd[digit+2] && (bcd[digit+1] || bcd[digit])) {
+        // add 3
+        var incremented = binary_add(bcd.slice(digit,digit+4), [1,1]);
+        for(var j = 0; j < 4; j++)
+          bcd[digit+j] = incremented[j];
+      }
+    }
 
-  return binary.reverse().join('');
+    // shift left
+    bcd.pop();
+    bcd.unshift(binary[i]);
+  }
+
+  var decimal = ''
+  for(var digit = 0; digit < bcd.length; digit+=4) {
+    decimal = bits_to_int(bcd.slice(digit,digit+4)).toString() + decimal;
+  }
+
+  return decimal;
+}
+
+function binary_add(a, b) {
+  if(a.length < b.length) {
+    var longest = b;
+    b = a;
+    a = longest;
+  }
+
+  var carry = 0;
+  var sum = Array(a.length);
+
+  for(var i = 0; i < a.length; i++) {
+    var bit_sum = a[i]+carry;
+    if(i < b.length)
+      bit_sum += b[i];
+
+    sum[i] = +(bit_sum %  2);
+    carry  = +(bit_sum >= 2);
+  }
+  if(carry)
+    sum.push(1);
+
+  return sum;
 }
