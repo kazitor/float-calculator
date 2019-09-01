@@ -45,46 +45,30 @@
   </div>
   <div class="group" id="exponent">
     <span class="label">Exponent</span>
-    <div class="bits">
-      <span>0</span>
-      <span>1</span>
-      <span>1</span>
-      <span>1</span>
-      <span>1</span>
-    </div>
+    <div class="bits"></div>
   </div>
   <div class="group" id="mantissa">
     <span class="label">Mantissa</span>
-    <div class="bits">
-      <span>0</span>
-      <span>0</span>
-      <span>0</span>
-      <span>0</span>
-      <span>0</span>
-      <span>0</span>
-      <span>0</span>
-      <span>0</span>
-      <span>0</span>
-      <span>0</span>
-    </div>
+    <div class="bits"></div>
   </div>
 
-  <select id="precision" disabled>
+  <select id="precision">
+    <option value="8">Demo (8)</option>
     <option value="16">Half (16)</option>
     <option value="32">Single (32)</option>
     <option value="64">Double (64)</option>
-    <option value="128">Quadruple (128)</option>
-    <option value="256">Octuple (256)</option>
+    <option value="128" disabled>Quadruple (128)</option>
+    <option value="256" disabled>Octuple (256)</option>
   </select>
 
   <table>
     <tr>
-      <th>represented</th>
-      <td id="val_represented">1.0</td>
+      <th>binary value</th>
+      <td id="val_binary"></td>
     </tr>
     <tr>
       <th>precise decimal</th>
-      <td id="val_precise">1</td>
+      <td id="val_precise"></td>
     </tr>
   </table>
 </body>

@@ -1,66 +1,104 @@
-/*
-exponent bits:
-5,8,11,15,19
-precisions:
-10,23,52,112,236
-*/
 var width = {
-  exp: 5,
-  man: 10
+  exp: 8,
+  man: 23
 };
 
 $(function() {
-  $('.bits span').click(function() {
+  $('.bits').on('click','span',function() {
     $(this).text(1 - $(this).text());
 
     updatevalues();
   });
+
+  $('#precision').change(function(e) {
+    var size = this.value;
+    var precision = [236,112,52,23,10,4].find(function(val) {
+      return val < size;
+    });
+    var exponent = size - precision - 1;
+
+    var components = decompose(get_bits());
+
+    width.man = precision;
+    width.exp = exponent;
+
+    set_bits(components.sig, components.exp, components.man)
+
+    updatevalues();
+  }).val(32);
+
+  set_bits(false, 0, [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]);
+  updatevalues();
 });
+
+function set_bits(sign, exp, mantissa) {
+  $('#sign > .bits > span').text(sign ? '1' : '0');
+
+  var biased_exp = exp + Math.pow(2,(width.exp - 1)) - 1;
+  var exponent_bits = $('#exponent > .bits');
+  exponent_bits.empty();
+  for(var i = 0; i < width.exp; i++) {
+    var span = document.createElement('span');
+    span.append((biased_exp & 1).toString());
+    biased_exp >>= 1;
+    exponent_bits.prepend(span);
+  }
+
+  var mantissa_bits = $('#mantissa > .bits');
+  mantissa_bits.empty();
+  for(var i = 0; i < width.man; i++) {
+    var span = document.createElement('span');
+    span.append(
+      (i < mantissa.length) ?
+        mantissa[mantissa.length-1-i].toString() :
+        '0'
+    );
+    mantissa_bits.append(span);
+  }
+
+}
 
 function updatevalues() {
   var components = decompose(get_bits());
   var parts = split_point(components);
 
-  if(Array.isArray(parts))
-    $('#val_represented').text(
+  if(Array.isArray(parts)) {
+    $('#val_binary').text(
+      (components.sig ? '-' : '')
+      + (parts[0]).slice().reverse().join('')
+      + '.'+ (parts[1]).slice().reverse().join('')
+    );
+    $('#val_precise').text(
       (components.sig ? '-' : '')
       + leading_decimal(parts[0])
       + '.'+ trailing_decimal(parts[1])
     );
-  else
-    $('#val_represented').text(parts);
+  }
+  else {
+    $('#val_binary').text(parts);
+    $('#val_precise').text(parts);
+  }
 }
 
 function get_bits() {
   var bits = [];
   $('.bits span').each(function() {
-    bits.push( parseInt($(this).text()) );
+    bits.unshift( parseInt(this.textContent) );
   });
-  // make bits[0] represent least significant
-  bits.reverse();
 
   return bits;
 }
 
 function decompose(bits) {
-  var sign = bits[bits.length - 1];
-  var exp  = bits_to_int(bits.slice(width.man, -1)) - Math.pow(2,(width.exp - 1)) + 1;
-  var man  = bits.slice(0, width.man);
-
   return {
-    sig: sign,
-    exp: exp,
-    man: man
+    sig: bits[bits.length - 1],
+    exp: bits_to_int(bits.slice(width.man, -1)) - Math.pow(2,(width.exp - 1)) + 1,
+    man: bits.slice(0, width.man)
   };
 }
 
 function bits_to_int(bits) {
-  var val = 0;
-  for(var i = bits.length-1; i >= 0; i--) {
-    val = (val << 1) | bits[i];
-  }
-
-  return val;
+  return bits.reduceRight((acc, bit) => (acc << 1) | bit);
 }
 
 function split_point(val) {
@@ -68,7 +106,7 @@ function split_point(val) {
     if(val.man.every(function(bit){return bit==0;}))
       return Infinity * Math.pow(-1, val.sig);
     else
-      return NaN;
+      return ((val.man[width.man-1] == 0) ? 'signalling' : 'quiet') + ' NaN';
   }
 
   var lead=[0];
@@ -146,11 +184,13 @@ function leading_decimal(binary) {
   }
 
   var decimal = ''
-  for(var digit = 0; digit < bcd.length; digit+=4) {
-    decimal = bits_to_int(bcd.slice(digit,digit+4)).toString() + decimal;
+  for(var digit = bcd.length; digit > 0; digit-=4) {
+    var dec_digit = bits_to_int(bcd.slice(digit-4,digit));
+    if(decimal || dec_digit) // skip leading zeroes
+      decimal = decimal + dec_digit.toString();
   }
 
-  return decimal;
+  return decimal || '0';
 }
 
 function binary_add(a, b) {
